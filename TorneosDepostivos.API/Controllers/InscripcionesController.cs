@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TorneoDeportivo.Modelos; // Asegúrate de que este using sea correcto
+using TorneoDeportivo.Modelos.Dtos;
 
 namespace TorneosDeportivos.API.Controllers
 {
@@ -82,23 +83,38 @@ namespace TorneosDeportivos.API.Controllers
 
         // --- POST: api/Inscripciones ---
         [HttpPost]
-        // Se cambia el tipo de retorno a ApiResult
-        public async Task<ActionResult<ApiResult<Inscripcion>>> PostInscripcion(Inscripcion inscripcion)
+        // Ahora recibimos un DTO para evitar validación de navegaciones
+        public async Task<ActionResult<ApiResult<Inscripcion>>> PostInscripcion([FromBody] InscripcionCreateDto dto)
         {
-            // Lógica de validación de negocio (opcional, pero recomendable)
-            var torneo = await _context.Torneos.FindAsync(inscripcion.TorneoId);
-            if (torneo == null)
+            // Validaciones básicas
+            var torneoExiste = await _context.Torneos.AnyAsync(t => t.Id == dto.TorneoId);
+            if (!torneoExiste)
             {
-                // Ejemplo de validación: si el torneo no existe.
-                return BadRequest(new ApiResult<Inscripcion> { Success = false, Message = "El ID del torneo no es válido." });
+                return NotFound(new ApiResult<Inscripcion> { Success = false, Message = $"Torneo {dto.TorneoId} no existe." });
             }
 
+            var equipoExiste = await _context.Equipos.AnyAsync(e => e.Id == dto.EquipoId);
+            if (!equipoExiste)
+            {
+                return NotFound(new ApiResult<Inscripcion> { Success = false, Message = $"Equipo {dto.EquipoId} no existe." });
+            }
+
+            var yaInscrito = await _context.Inscripciones.AnyAsync(i => i.TorneoId == dto.TorneoId && i.EquipoId == dto.EquipoId);
+            if (yaInscrito)
+            {
+                return Conflict(new ApiResult<Inscripcion> { Success = false, Message = "El equipo ya está inscrito en este torneo." });
+            }
+
+            var inscripcion = new Inscripcion
+            {
+                TorneoId = dto.TorneoId,
+                EquipoId = dto.EquipoId,
+                FechaInscripcion = DateTime.UtcNow
+            };
+
             _context.Inscripciones.Add(inscripcion);
-            // La inscripción no requiere que el ID se genere automáticamente.
             await _context.SaveChangesAsync();
 
-            // 1. **CORRECCIÓN CLAVE:** Crear y retornar el ApiResult.
-            // Esto asegura que tu código de prueba reciba un código 201 y un cuerpo JSON válido.
             var result = new ApiResult<Inscripcion>
             {
                 Success = true,
@@ -106,7 +122,7 @@ namespace TorneosDeportivos.API.Controllers
                 Message = "Inscripción registrada correctamente."
             };
 
-            return CreatedAtAction(nameof(GetInscripcion), new { id = inscripcion.Id }, result); // Retorna 201 Created
+            return CreatedAtAction(nameof(GetInscripcion), new { id = inscripcion.Id }, result);
         }
 
         // --- DELETE: api/Inscripciones/5 ---
