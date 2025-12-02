@@ -122,10 +122,99 @@ namespace TorneosDeportivos.API.Controllers
         // Se asume que necesitas los endpoints para tabla-posiciones y goleadores
 
         [HttpGet("{id}/tabla-posiciones")]
-        public IActionResult GetTablaPosiciones(int id)
+        public async Task<IActionResult> GetTablaPosiciones(int id)
         {
-            // Lógica para calcular y retornar la tabla de posiciones...
-            return Ok(new ApiResult<object> { Success = true, Message = "Tabla de posiciones generada." /* Data = tabla */ });
+            var torneoExiste = await _context.Torneos.AnyAsync(t => t.Id == id);
+            if (!torneoExiste)
+            {
+                return NotFound(new ApiResult<object> { Success = false, Message = $"Torneo {id} no encontrado." });
+            }
+
+            var partidos = await _context.Partidos
+                .Where(p => p.TorneoId == id && p.Jugado)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var stats = new Dictionary<int, TablaRow>();
+
+            void Ensure(int equipoId)
+            {
+                if (!stats.ContainsKey(equipoId)) stats[equipoId] = new TablaRow { EquipoId = equipoId };
+            }
+
+            foreach (var p in partidos)
+            {
+                Ensure(p.EquipoLocalId);
+                Ensure(p.EquipoVisitanteId);
+
+                var local = stats[p.EquipoLocalId];
+                var visita = stats[p.EquipoVisitanteId];
+
+                local.PJ++; visita.PJ++;
+                local.GF += p.GolesLocal; local.GC += p.GolesVisitante;
+                visita.GF += p.GolesVisitante; visita.GC += p.GolesLocal;
+
+                if (p.GolesLocal > p.GolesVisitante)
+                {
+                    local.PG++; visita.PP++;
+                    local.Pts += 3;
+                }
+                else if (p.GolesLocal < p.GolesVisitante)
+                {
+                    visita.PG++; local.PP++;
+                    visita.Pts += 3;
+                }
+                else
+                {
+                    // Empate
+                    local.PE++; visita.PE++;
+                    local.Pts += 1; visita.Pts += 1;
+                }
+            }
+
+            foreach (var s in stats.Values)
+            {
+                s.DG = s.GF - s.GC;
+            }
+
+            var tabla = stats.Values
+                .OrderByDescending(s => s.Pts)
+                .ThenByDescending(s => s.DG)
+                .ThenByDescending(s => s.GF)
+                .Select((s, idx) => new
+                {
+                    Pos = idx + 1,
+                    s.EquipoId,
+                    s.PJ,
+                    s.PG,
+                    s.PE,
+                    s.PP,
+                    s.GF,
+                    s.GC,
+                    s.DG,
+                    s.Pts
+                })
+                .ToList();
+
+            return Ok(new ApiResult<object>
+            {
+                Success = true,
+                Message = "Tabla de posiciones generada.",
+                Data = tabla
+            });
+        }
+
+        private class TablaRow
+        {
+            public int EquipoId { get; set; }
+            public int PJ { get; set; }
+            public int PG { get; set; }
+            public int PE { get; set; }
+            public int PP { get; set; }
+            public int GF { get; set; }
+            public int GC { get; set; }
+            public int DG { get; set; }
+            public int Pts { get; set; }
         }
 
         [HttpGet("{id}/goleadores")]
