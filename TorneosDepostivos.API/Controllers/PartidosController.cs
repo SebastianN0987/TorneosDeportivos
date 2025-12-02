@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TorneoDeportivo.Modelos;
 
 namespace TorneosDeportivos.API.Controllers
 {
@@ -19,29 +20,37 @@ namespace TorneosDeportivos.API.Controllers
             _context = context;
         }
 
-        // GET: api/Partidos
+        // --- GET: api/Partidos ---
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Partido>>> GetPartido()
+        public async Task<ActionResult<ApiResult<IEnumerable<Partido>>>> GetPartido()
         {
-            return await _context.Partidos.ToListAsync();
+            var partidos = await _context.Partidos.ToListAsync();
+
+            // Envuelve la respuesta en ApiResult
+            return Ok(new ApiResult<IEnumerable<Partido>>
+            {
+                Success = true,
+                Data = partidos
+            });
         }
 
-        // GET: api/Partidos/5
+        // --- GET: api/Partidos/5 ---
         [HttpGet("{id}")]
-        public async Task<ActionResult<Partido>> GetPartido(int id)
+        public async Task<ActionResult<ApiResult<Partido>>> GetPartido(int id)
         {
             var partido = await _context.Partidos.FindAsync(id);
 
             if (partido == null)
             {
-                return NotFound();
+                return NotFound(new ApiResult<Partido> { Success = false, Message = "Partido no encontrado." });
             }
 
-            return partido;
+            // Envuelve la respuesta en ApiResult
+            return Ok(new ApiResult<Partido> { Success = true, Data = partido });
         }
 
-        // PUT: api/Partidos/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // --- PUT: api/Partidos/5 ---
+        // Método utilizado para actualizar el resultado de un partido
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPartido(int id, Partido partido)
         {
@@ -50,6 +59,7 @@ namespace TorneosDeportivos.API.Controllers
                 return BadRequest();
             }
 
+            // Aquí se asume que la lógica de negocio es actualizar el partido
             _context.Entry(partido).State = EntityState.Modified;
 
             try
@@ -68,21 +78,28 @@ namespace TorneosDeportivos.API.Controllers
                 }
             }
 
+            // Retorna un 204 No Content para una actualización exitosa
             return NoContent();
         }
 
-        // POST: api/Partidos
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // --- POST: api/Partidos ---
+        // Método para crear un nuevo partido
         [HttpPost]
-        public async Task<ActionResult<Partido>> PostPartido(Partido partido)
+        public async Task<ActionResult<ApiResult<Partido>>> PostPartido(Partido partido)
         {
+            // Validaciones si son necesarias...
+
             _context.Partidos.Add(partido);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPartido", new { id = partido.Id }, partido);
+            // 1. Envuelve el objeto en ApiResult
+            var result = new ApiResult<Partido> { Success = true, Data = partido, Message = "Partido creado." };
+
+            // 2. Retorna 201 CreatedAtAction, usando el nombre correcto 'GetPartido'
+            return CreatedAtAction(nameof(GetPartido), new { id = partido.Id }, result);
         }
 
-        // DELETE: api/Partidos/5
+        // --- DELETE: api/Partidos/5 ---
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePartido(int id)
         {

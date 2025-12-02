@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using TorneoDeportivo.Modelos;
 
-    public class TorneosDeportivosDbContext : DbContext
+public class TorneosDeportivosDbContext : DbContext
     {
         public TorneosDeportivosDbContext (DbContextOptions<TorneosDeportivosDbContext> options)
             : base(options)

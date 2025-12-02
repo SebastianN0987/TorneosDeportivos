@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic; // Necesario para List<T>
+using System.ComponentModel.DataAnnotations.Schema; // Necesario para [ForeignKey]
 
 namespace TorneoDeportivo.Modelos;
 public class Jugador

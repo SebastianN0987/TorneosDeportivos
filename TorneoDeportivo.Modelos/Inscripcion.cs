@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-
 namespace TorneoDeportivo.Modelos;
+using System.Collections.Generic; // Necesario para List<T>
+using System.ComponentModel.DataAnnotations.Schema; // Necesario para [ForeignKey]
 public class Inscripcion
 {
     [Key] public int Id { get; set; }

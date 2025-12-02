@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TorneoDeportivo.Modelos;
 
 namespace TorneosDeportivos.API.Controllers
 {
@@ -19,29 +20,39 @@ namespace TorneosDeportivos.API.Controllers
             _context = context;
         }
 
-        // GET: api/Equiposs
+        // --- GET: api/Equiposs ---
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Equipo>>> GetEquipo()
+        // Se cambia el tipo de retorno para usar ApiResult
+        public async Task<ActionResult<ApiResult<IEnumerable<Equipo>>>> GetEquipo()
         {
-            return await _context.Equipos.ToListAsync();
+            var equipos = await _context.Equipos.ToListAsync();
+
+            // Envuelve la respuesta en ApiResult
+            return Ok(new ApiResult<IEnumerable<Equipo>>
+            {
+                Success = true,
+                Data = equipos
+            });
         }
 
-        // GET: api/Equiposs/5
+        // --- GET: api/Equiposs/5 ---
         [HttpGet("{id}")]
-        public async Task<ActionResult<Equipo>> GetEquipo(int id)
+        // Se cambia el tipo de retorno para usar ApiResult
+        public async Task<ActionResult<ApiResult<Equipo>>> GetEquipo(int id)
         {
             var equipo = await _context.Equipos.FindAsync(id);
 
             if (equipo == null)
             {
-                return NotFound();
+                // Devuelve NotFound con un ApiResult indicando el error
+                return NotFound(new ApiResult<Equipo> { Success = false, Message = "Equipo no encontrado." });
             }
 
-            return equipo;
+            // Envuelve la respuesta en ApiResult
+            return Ok(new ApiResult<Equipo> { Success = true, Data = equipo });
         }
 
-        // PUT: api/Equiposs/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // --- PUT: api/Equiposs/5 ---
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEquipo(int id, Equipo equipo)
         {
@@ -71,18 +82,29 @@ namespace TorneosDeportivos.API.Controllers
             return NoContent();
         }
 
-        // POST: api/Equiposs
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // --- POST: api/Equiposs ---
         [HttpPost]
-        public async Task<ActionResult<Equipo>> PostEquipo(Equipo equipo)
+        // Se cambia el tipo de retorno para usar ApiResult
+        public async Task<ActionResult<ApiResult<Equipo>>> PostEquipo(Equipo equipo)
         {
             _context.Equipos.Add(equipo);
+            // **IMPORTANTE**: SaveChangesAsync debe ocurrir aquí para que 'equipo.Id' se genere.
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetEquipo", new { id = equipo.Id }, equipo);
+            // 1. **CORRECCIÓN CLAVE:** Creación del objeto ApiResult
+            // Esto asegura que el JSON tenga la estructura que la prueba espera (Data, Success).
+            var result = new ApiResult<Equipo>
+            {
+                Success = true,
+                Data = equipo,
+                Message = "Equipo creado exitosamente."
+            };
+
+            // 2. Retornar 201 CreatedAtAction, usando el objeto 'result'.
+            return CreatedAtAction(nameof(GetEquipo), new { id = equipo.Id }, result);
         }
 
-        // DELETE: api/Equiposs/5
+        // --- DELETE: api/Equiposs/5 ---
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEquipo(int id)
         {

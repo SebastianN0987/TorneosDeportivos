@@ -4,7 +4,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:50637",
+      "applicationUrl": "http://localhost:7295",
       "sslPort": 44335
     }
   },
@@ -14,7 +14,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5186",
+      "applicationUrl": "http://localhost:7295",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -24,7 +24,10 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7295;http://localhost:5186",
+      // **********************************************
+      // ** CAMBIO CLAVE AQUÍ: Puerto HTTPS debe ser 7295
+      // **********************************************
+      "applicationUrl": "https://localhost:7295",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

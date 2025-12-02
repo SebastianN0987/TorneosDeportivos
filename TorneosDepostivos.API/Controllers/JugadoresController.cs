@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TorneoDeportivo.Modelos;
 
 namespace TorneosDeportivos.API.Controllers
 {

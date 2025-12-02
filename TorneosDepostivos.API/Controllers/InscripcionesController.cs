@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TorneoDeportivo.Modelos; // Asegúrate de que este using sea correcto
 
 namespace TorneosDeportivos.API.Controllers
 {
@@ -19,29 +20,37 @@ namespace TorneosDeportivos.API.Controllers
             _context = context;
         }
 
-        // GET: api/Inscripciones
+        // --- GET: api/Inscripciones ---
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Inscripcion>>> GetInscripcion()
+        // Se cambia el tipo de retorno a ApiResult para consistencia
+        public async Task<ActionResult<ApiResult<IEnumerable<Inscripcion>>>> GetInscripcion()
         {
-            return await _context.Inscripciones.ToListAsync();
+            var inscripciones = await _context.Inscripciones.ToListAsync();
+
+            return Ok(new ApiResult<IEnumerable<Inscripcion>>
+            {
+                Success = true,
+                Data = inscripciones
+            });
         }
 
-        // GET: api/Inscripciones/5
+        // --- GET: api/Inscripciones/5 ---
         [HttpGet("{id}")]
-        public async Task<ActionResult<Inscripcion>> GetInscripcion(int id)
+        // Se cambia el tipo de retorno a ApiResult para consistencia
+        public async Task<ActionResult<ApiResult<Inscripcion>>> GetInscripcion(int id)
         {
             var inscripcion = await _context.Inscripciones.FindAsync(id);
 
             if (inscripcion == null)
             {
-                return NotFound();
+                // Retorno 404 con mensaje
+                return NotFound(new ApiResult<Inscripcion> { Success = false, Message = "Inscripción no encontrada." });
             }
 
-            return inscripcion;
+            return Ok(new ApiResult<Inscripcion> { Success = true, Data = inscripcion });
         }
 
-        // PUT: api/Inscripciones/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // --- PUT: api/Inscripciones/5 ---
         [HttpPut("{id}")]
         public async Task<IActionResult> PutInscripcion(int id, Inscripcion inscripcion)
         {
@@ -68,21 +77,39 @@ namespace TorneosDeportivos.API.Controllers
                 }
             }
 
-            return NoContent();
+            return NoContent(); // Retorna 204 No Content
         }
 
-        // POST: api/Inscripciones
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // --- POST: api/Inscripciones ---
         [HttpPost]
-        public async Task<ActionResult<Inscripcion>> PostInscripcion(Inscripcion inscripcion)
+        // Se cambia el tipo de retorno a ApiResult
+        public async Task<ActionResult<ApiResult<Inscripcion>>> PostInscripcion(Inscripcion inscripcion)
         {
+            // Lógica de validación de negocio (opcional, pero recomendable)
+            var torneo = await _context.Torneos.FindAsync(inscripcion.TorneoId);
+            if (torneo == null)
+            {
+                // Ejemplo de validación: si el torneo no existe.
+                return BadRequest(new ApiResult<Inscripcion> { Success = false, Message = "El ID del torneo no es válido." });
+            }
+
             _context.Inscripciones.Add(inscripcion);
+            // La inscripción no requiere que el ID se genere automáticamente.
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetInscripcion", new { id = inscripcion.Id }, inscripcion);
+            // 1. **CORRECCIÓN CLAVE:** Crear y retornar el ApiResult.
+            // Esto asegura que tu código de prueba reciba un código 201 y un cuerpo JSON válido.
+            var result = new ApiResult<Inscripcion>
+            {
+                Success = true,
+                Data = inscripcion,
+                Message = "Inscripción registrada correctamente."
+            };
+
+            return CreatedAtAction(nameof(GetInscripcion), new { id = inscripcion.Id }, result); // Retorna 201 Created
         }
 
-        // DELETE: api/Inscripciones/5
+        // --- DELETE: api/Inscripciones/5 ---
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteInscripcion(int id)
         {
