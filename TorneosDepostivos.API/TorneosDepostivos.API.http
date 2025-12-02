@@ -1,0 +1,6 @@
+@TorneosDepostivos.API_HostAddress = http://localhost:5186
+
+GET {{TorneosDepostivos.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
