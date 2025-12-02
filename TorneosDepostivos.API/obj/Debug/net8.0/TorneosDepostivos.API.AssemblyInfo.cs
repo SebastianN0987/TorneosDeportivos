@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TorneosDepostivos.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1701581bb2ba3fbceaab99721ad639a53b4b4057")]
 [assembly: System.Reflection.AssemblyProductAttribute("TorneosDepostivos.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TorneosDepostivos.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
