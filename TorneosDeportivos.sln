@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorneosDeportivos.API", "To
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorneoDeportivo.Modelos", "TorneoDeportivo.Modelos\TorneoDeportivo.Modelos.csproj", "{FA37D202-5142-4F5E-A2DC-E72542144416}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TornetosDeportivos.ApiTest", "TornetosDeportivos.ApiTest\TornetosDeportivos.ApiTest.csproj", "{FFF10679-E43A-48BA-B653-51DD32B35BEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FA37D202-5142-4F5E-A2DC-E72542144416}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA37D202-5142-4F5E-A2DC-E72542144416}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA37D202-5142-4F5E-A2DC-E72542144416}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFF10679-E43A-48BA-B653-51DD32B35BEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFF10679-E43A-48BA-B653-51DD32B35BEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFF10679-E43A-48BA-B653-51DD32B35BEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFF10679-E43A-48BA-B653-51DD32B35BEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

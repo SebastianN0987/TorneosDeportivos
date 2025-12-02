@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+
+namespace TorneoDeportivo.Modelos;
 public class Inscripcion
 {
     [Key] public int Id { get; set; }

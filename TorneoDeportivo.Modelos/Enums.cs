@@ -1,3 +1,4 @@
+namespace TorneoDeportivo.Modelos;
 public enum TipoTorneo
 {
     Liga,

@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+
+namespace TorneoDeportivo.Modelos;
 public class Gol
 {
     [Key] public int Id { get; set; }

@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+
+namespace TorneoDeportivo.Modelos;
 public class Equipo
 {
     [Key] public int Id { get; set; }
